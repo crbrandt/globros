@@ -28,26 +28,38 @@ def calculate_normalized_score(raw_scores, game):
     (Score - Median Score) / (Median Score^0.4)
     
     Args:
-        raw_scores (list): List of raw scores for all players
+        raw_scores (list): List of raw scores for all players (may contain None for non-participants)
         game (str): Game name
     
     Returns:
-        list: Normalized unweighted scores
+        list: Normalized unweighted scores (None for non-participants)
     """
-    scores_array = np.array(raw_scores, dtype=float)
-    median_score = np.median(scores_array)
+    # Filter out None values for median calculation
+    participating_scores = [score for score in raw_scores if score is not None]
     
-    # Avoid division by zero and handle edge cases
-    if median_score <= 0:
-        median_score = 1.0
+    if not participating_scores:
+        # If no one participated, return all zeros
+        return [0.0 if score is not None else None for score in raw_scores]
+    
+    scores_array = np.array(participating_scores, dtype=float)
+    median_score = np.median(scores_array)
     
     normalized_scores = []
     for score in raw_scores:
-        try:
-            normalized = (float(score) - median_score) / (median_score ** 0.4)
-            normalized_scores.append(normalized)
-        except (ValueError, TypeError):
-            normalized_scores.append(0.0)
+        if score is None:
+            normalized_scores.append(None)  # Non-participant
+        else:
+            try:
+                # Handle division by zero case when median is exactly 0
+                if median_score == 0:
+                    # When median is 0, scores above 0 are positive, scores below 0 are negative
+                    normalized = float(score)  # Simple difference since median is 0
+                else:
+                    # Use absolute value for the denominator to handle negative medians properly
+                    normalized = (float(score) - median_score) / (abs(median_score) ** 0.4)
+                normalized_scores.append(normalized)
+            except (ValueError, TypeError):
+                normalized_scores.append(0.0)
     
     return normalized_scores
 
@@ -56,14 +68,14 @@ def calculate_weighted_scores(normalized_scores, game):
     Apply game weights to normalized scores.
     
     Args:
-        normalized_scores (list): List of normalized unweighted scores
+        normalized_scores (list): List of normalized unweighted scores (may contain None)
         game (str): Game name
     
     Returns:
-        list: Weighted scores
+        list: Weighted scores (None for non-participants)
     """
     weight = GAMES[game]["weight"]
-    return [score * weight for score in normalized_scores]
+    return [score * weight if score is not None else None for score in normalized_scores]
 
 def calculate_daily_results(scores_data):
     """
@@ -101,19 +113,32 @@ def calculate_daily_results(scores_data):
         weighted_scores = calculate_weighted_scores(normalized_unweighted, game)
         results["normalized_weighted"][game] = weighted_scores
         
-        # Add to total scores
+        # Add to total scores (only for participating players)
         for i, weighted_score in enumerate(weighted_scores):
-            results["total_scores"][i] += weighted_score
+            if weighted_score is not None:
+                results["total_scores"][i] += weighted_score
     
-    # Calculate rankings (lower total score is better)
-    player_totals = list(zip(PLAYERS, results["total_scores"]))
-    player_totals.sort(key=lambda x: x[1])  # Sort by total score
+    # Filter out non-participating players for rankings
+    participating_player_totals = []
+    for i, player in enumerate(PLAYERS):
+        # Check if player participated in any game
+        participated = any(
+            results["raw_scores"][game][i] is not None 
+            for game in results["raw_scores"]
+        )
+        if participated:
+            participating_player_totals.append((player, results["total_scores"][i]))
     
-    results["rankings"] = player_totals
+    # Calculate rankings (lower total score is better) - only participating players
+    participating_player_totals.sort(key=lambda x: x[1])
+    results["rankings"] = participating_player_totals
     
-    # Handle ties - find all players with the lowest score
-    lowest_score = player_totals[0][1]
-    winners = [player for player, score in player_totals if score == lowest_score]
+    # Handle ties - find all players with the lowest score among participants
+    if participating_player_totals:
+        lowest_score = participating_player_totals[0][1]
+        winners = [player for player, score in participating_player_totals if score == lowest_score]
+    else:
+        winners = []
     
     if len(winners) == 1:
         results["winner"] = winners[0]
