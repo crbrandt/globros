@@ -24,8 +24,34 @@ def show():
     
     st.markdown("---")
     
+    # Player participation selection
+    st.subheader("👥 Player Participation")
+    st.write("Select which players participated today:")
+    
+    # Initialize session state for participation
+    if 'player_participation' not in st.session_state:
+        st.session_state.player_participation = {player: True for player in PLAYERS}
+    
+    participation_cols = st.columns(len(PLAYERS))
+    for i, player in enumerate(PLAYERS):
+        with participation_cols[i]:
+            st.session_state.player_participation[player] = st.checkbox(
+                f"✅ {player}",
+                value=st.session_state.player_participation[player],
+                key=f"participation_{player}"
+            )
+    
+    # Get list of participating players
+    participating_players = [player for player in PLAYERS if st.session_state.player_participation[player]]
+    
+    if not participating_players:
+        st.error("❌ At least one player must participate!")
+        return
+    
+    st.markdown("---")
+    
     # Score input section
-    st.subheader("🎮 Enter Scores for All Players")
+    st.subheader("🎮 Enter Scores for Participating Players")
     
     # Initialize session state for scores
     if 'scores_data' not in st.session_state:
@@ -35,14 +61,14 @@ def show():
             for player in PLAYERS:
                 st.session_state.scores_data[game][player] = None
     
-    # Create input fields for each game
+    # Create input fields for each game - only for participating players
     for game in GAMES.keys():
         st.markdown(f"### 🌍 {game}")
         
         if GAMES[game]["type"] == "standard":
             # Standard games - simple number input
-            cols = st.columns(len(PLAYERS))
-            for i, player in enumerate(PLAYERS):
+            cols = st.columns(len(participating_players))
+            for i, player in enumerate(participating_players):
                 with cols[i]:
                     if game == "Travle":
                         score = st.number_input(
@@ -63,11 +89,16 @@ def show():
                             help="Enter score (1 to 100)"
                         )
                     st.session_state.scores_data[game][player] = score
+            
+            # Set non-participating players to None
+            for player in PLAYERS:
+                if player not in participating_players:
+                    st.session_state.scores_data[game][player] = None
         
         else:
             # Special games (NoBordle, ImpossiBordle)
-            cols = st.columns(len(PLAYERS))
-            for i, player in enumerate(PLAYERS):
+            cols = st.columns(len(participating_players))
+            for i, player in enumerate(participating_players):
                 with cols[i]:
                     st.markdown(f"**{player}**")
                     
@@ -99,6 +130,11 @@ def show():
                     
                     st.session_state.scores_data[game][player] = raw_score
                     st.caption(f"Calculated score: {raw_score:.2f}")
+            
+            # Set non-participating players to None
+            for player in PLAYERS:
+                if player not in participating_players:
+                    st.session_state.scores_data[game][player] = None
     
     st.markdown("---")
     
@@ -157,27 +193,36 @@ def display_results(results):
     # Detailed results
     st.subheader("📊 Detailed Results")
     
-    # Create results table with humor for bad scores
+    # Create results table with humor for bad scores - only participating players
     results_data = []
     for i, player in enumerate(PLAYERS):
-        row = {"Player": player, "Total Score": f"{results['total_scores'][i]:.3f}"}
-        for game in GAMES.keys():
-            if game in results["raw_scores"]:
-                raw = results["raw_scores"][game][i]
-                weighted = results["normalized_weighted"][game][i]
-                
-                # Check for bad scores and add humor
-                raw_display = str(raw)
-                if game in ["Worldle", "Globle", "Countryle"] and raw >= 10:
-                    humor_msg = random.choice(BAD_SCORE_MESSAGES).split('!')[0] + "!"  # Get first part before emoji
-                    raw_display = f"{raw} 😬"
-                elif game == "Travle" and raw >= 3:
-                    humor_msg = random.choice(BAD_SCORE_MESSAGES).split('!')[0] + "!"
-                    raw_display = f"{raw} 😬"
-                
-                row[f"{game} (Raw)"] = raw_display
-                row[f"{game} (Weighted)"] = f"{weighted:.3f}"
-        results_data.append(row)
+        # Check if player participated in any game
+        participated = any(
+            results["raw_scores"][game][i] is not None 
+            for game in results["raw_scores"]
+        )
+        
+        if participated:
+            row = {"Player": player, "Total Score": f"{results['total_scores'][i]:.3f}"}
+            for game in GAMES.keys():
+                if game in results["raw_scores"]:
+                    raw = results["raw_scores"][game][i]
+                    weighted = results["normalized_weighted"][game][i]
+                    
+                    if raw is not None:
+                        # Check for bad scores and add humor
+                        raw_display = str(raw)
+                        if game in ["Worldle", "Globle", "Countryle"] and raw >= 10:
+                            raw_display = f"{raw} 😬"
+                        elif game == "Travle" and raw >= 3:
+                            raw_display = f"{raw} 😬"
+                        
+                        row[f"{game} (Raw)"] = raw_display
+                        row[f"{game} (Weighted)"] = f"{weighted:.3f}"
+                    else:
+                        row[f"{game} (Raw)"] = "N/A"
+                        row[f"{game} (Weighted)"] = "N/A"
+            results_data.append(row)
     
     # Sort by total score for display
     results_data.sort(key=lambda x: float(x["Total Score"]))
