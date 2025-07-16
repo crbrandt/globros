@@ -41,9 +41,9 @@ CELEBRATION_GIFS = [
     "https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif",  # Earth spinning
     "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif",  # Celebration
     "https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif",  # Trophy
-    "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",  # Confetti
-    "https://media.giphy.com/media/3o6Zt6KHxJTbXCnSvu/giphy.gif",  # Globe
-    "https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif",  # Victory dance
+    "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjZxenN2ZnZlNmFlNnZpZXB6NGEybjljd3ExN3cxbXRqZzZsaGxmZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/toe7vOw1WPAmEDfKeZ/giphy.gif",  # Confetti
+    "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWpjYXZrd3h1MXY3MnRtbGU3cWkzcmZkZWw0b2UwNTZ6ajJud3U4biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8jqIQKr6zeh1j3UYhu/giphy.gif",  # Globe
+    "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHA1cWg5ZWxtMHNmN291b2Y2MHpwM29hMGJwZWM2c2p4MDU0MmduMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jWgFDax9Dmcpi5hiec/giphy.gif",  # Victory dance
     "https://media.giphy.com/media/26BRBKqUiq586bRVm/giphy.gif",  # Fireworks
     "https://media.giphy.com/media/3o7abA4a0QCXtSxGN2/giphy.gif",  # Applause
     "https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif",  # Success
