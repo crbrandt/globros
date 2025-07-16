@@ -36,7 +36,7 @@ def show():
     for i, player in enumerate(PLAYERS):
         with participation_cols[i]:
             st.session_state.player_participation[player] = st.checkbox(
-                f"✅ {player}",
+                f"{player}",
                 value=st.session_state.player_participation[player],
                 key=f"participation_{player}"
             )
