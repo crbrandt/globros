@@ -35,13 +35,18 @@ def save_daily_results(date, results):
         for game in GAMES.keys():
             if game in results["raw_scores"]:
                 for i, player in enumerate(PLAYERS):
+                    # Handle None values properly for CSV storage
+                    raw_score = results["raw_scores"][game][i]
+                    norm_unweighted = results["normalized_unweighted"][game][i]
+                    norm_weighted = results["normalized_weighted"][game][i]
+                    
                     row = {
                         "date": date,
                         "game": game,
                         "player": player,
-                        "raw_score": results["raw_scores"][game][i],
-                        "normalized_unweighted_score": results["normalized_unweighted"][game][i],
-                        "normalized_weighted_score": results["normalized_weighted"][game][i]
+                        "raw_score": raw_score if raw_score is not None else "",
+                        "normalized_unweighted_score": norm_unweighted if norm_unweighted is not None else "",
+                        "normalized_weighted_score": norm_weighted if norm_weighted is not None else ""
                     }
                     rows.append(row)
         
@@ -62,6 +67,8 @@ def save_daily_results(date, results):
     
     except Exception as e:
         print(f"Error saving data: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 def load_historical_data():
