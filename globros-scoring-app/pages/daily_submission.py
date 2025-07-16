@@ -36,7 +36,7 @@ def show():
     for i, player in enumerate(PLAYERS):
         with participation_cols[i]:
             st.session_state.player_participation[player] = st.checkbox(
-                f"{player}",
+                f"✅ {player}",
                 value=st.session_state.player_participation[player],
                 key=f"participation_{player}"
             )
@@ -274,24 +274,36 @@ def display_results(results):
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("💾 Submit to Official Records", type="primary", use_container_width=True):
-            if save_daily_results(st.session_state.current_date, st.session_state.current_results):
+            with st.spinner("Saving results..."):
+                success = save_daily_results(st.session_state.current_date, st.session_state.current_results)
+            
+            if success:
                 st.success("✅ Results saved to official records!")
                 st.balloons()
                 
-                # Clear the form
-                for game in GAMES.keys():
-                    for player in PLAYERS:
-                        st.session_state.scores_data[game][player] = None
+                # Mark as saved in session state instead of clearing immediately
+                st.session_state.results_saved = True
                 
-                # Clear results from session state
-                if 'current_results' in st.session_state:
-                    del st.session_state.current_results
-                if 'current_date' in st.session_state:
-                    del st.session_state.current_date
+                # Show option to start new calculation
+                st.info("🎉 Data successfully saved! You can now calculate results for another date or refresh the page to start over.")
                 
-                st.rerun()
+                if st.button("🔄 Start New Calculation", key="new_calc"):
+                    # Clear the form and results
+                    for game in GAMES.keys():
+                        for player in PLAYERS:
+                            st.session_state.scores_data[game][player] = None
+                    
+                    # Clear results from session state
+                    if 'current_results' in st.session_state:
+                        del st.session_state.current_results
+                    if 'current_date' in st.session_state:
+                        del st.session_state.current_date
+                    if 'results_saved' in st.session_state:
+                        del st.session_state.results_saved
+                    
+                    st.rerun()
             else:
-                st.error("❌ Error saving results. Please try again.")
+                st.error("❌ Error saving results. Please check the terminal for error details and try again.")
 
 # Initialize the page
 if __name__ == "__main__":
