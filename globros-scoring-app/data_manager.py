@@ -83,10 +83,21 @@ def load_historical_data():
         pd.DataFrame: Historical data or empty DataFrame if file doesn't exist
     """
     try:
-        ensure_csv_exists()
-        return pd.read_csv(CSV_FILE_PATH)
+        # Don't call ensure_csv_exists() - let it read existing files first
+        if os.path.exists(CSV_FILE_PATH):
+            df = pd.read_csv(CSV_FILE_PATH)
+            print(f"Loaded CSV with {len(df)} rows from {CSV_FILE_PATH}")
+            if len(df) > 0:
+                print(f"First few rows: {df.head()}")
+            return df
+        else:
+            print(f"CSV file does not exist: {CSV_FILE_PATH}")
+            ensure_csv_exists()
+            return pd.DataFrame(columns=CSV_COLUMNS)
     except Exception as e:
         print(f"Error loading data: {e}")
+        import traceback
+        traceback.print_exc()
         return pd.DataFrame(columns=CSV_COLUMNS)
 
 def get_daily_winners():

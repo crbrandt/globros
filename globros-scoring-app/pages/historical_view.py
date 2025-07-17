@@ -21,6 +21,27 @@ def show():
         st.write(f"- scores_history.csv exists: `{os.path.exists('data/scores_history.csv')}`")
         st.write(f"- daily_winners.csv exists: `{os.path.exists('data/daily_winners.csv')}`")
         
+        # Check file sizes
+        if os.path.exists('data/scores_history.csv'):
+            st.write(f"- scores_history.csv size: `{os.path.getsize('data/scores_history.csv')} bytes`")
+        if os.path.exists('data/daily_winners.csv'):
+            st.write(f"- daily_winners.csv size: `{os.path.getsize('data/daily_winners.csv')} bytes`")
+        
+        # Try to read raw file contents
+        try:
+            with open('data/scores_history.csv', 'r') as f:
+                content = f.read()
+                st.write(f"- scores_history.csv raw content (first 200 chars): `{content[:200]}`")
+        except Exception as e:
+            st.write(f"- Error reading scores_history.csv: `{e}`")
+            
+        try:
+            with open('data/daily_winners.csv', 'r') as f:
+                content = f.read()
+                st.write(f"- daily_winners.csv raw content: `{content}`")
+        except Exception as e:
+            st.write(f"- Error reading daily_winners.csv: `{e}`")
+        
         df = load_historical_data()
         winners_df = load_daily_winners()
         stats = get_player_statistics()

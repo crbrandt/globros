@@ -101,8 +101,19 @@ def load_daily_winners():
         pd.DataFrame: Daily winners data
     """
     try:
-        ensure_winners_csv_exists()
-        return pd.read_csv(WINNERS_CSV_PATH)
+        # Don't call ensure_winners_csv_exists() - let it read existing files first
+        if os.path.exists(WINNERS_CSV_PATH):
+            df = pd.read_csv(WINNERS_CSV_PATH)
+            print(f"Loaded winners CSV with {len(df)} rows from {WINNERS_CSV_PATH}")
+            if len(df) > 0:
+                print(f"Winners data: {df.head()}")
+            return df
+        else:
+            print(f"Winners CSV file does not exist: {WINNERS_CSV_PATH}")
+            ensure_winners_csv_exists()
+            return pd.DataFrame(columns=WINNERS_COLUMNS)
     except Exception as e:
         print(f"Error loading winners data: {e}")
+        import traceback
+        traceback.print_exc()
         return pd.DataFrame(columns=WINNERS_COLUMNS)
