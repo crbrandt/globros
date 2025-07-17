@@ -15,7 +15,9 @@ def show():
         import os
         
         # Get the directory of the current script
-        script_dir = os.path.dirname(os.path.abspath(__file__))
+        base_url = "https://raw.githubusercontent.com/crbrandt/globros/main/globros-scoring-app/"
+        scores_url = base_url + "scores_history.csv"
+        winners_url = base_url + "daily_winners.csv"
         
         # Navigate to the correct data directory
         data_dir = os.path.join(script_dir, 'data')
