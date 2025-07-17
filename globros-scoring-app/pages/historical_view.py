@@ -15,7 +15,7 @@ def show():
         import os
         
         # Get the directory of the current script
-        base_url = "https://raw.githubusercontent.com/crbrandt/globros/main/globros-scoring-app/"
+        script_dir = "https://raw.githubusercontent.com/crbrandt/globros/main/globros-scoring-app/"
         scores_url = base_url + "scores_history.csv"
         winners_url = base_url + "daily_winners.csv"
         
