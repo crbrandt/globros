@@ -80,6 +80,16 @@ def show():
                             key=f"{game}_{player}",
                             help="Enter score (-1 to 100)"
                         )
+                    elif game == "Geogrid":
+                        score = st.number_input(
+                            f"{player}",
+                            min_value=0,
+                            max_value=900,
+                            value=0,
+                            step=1,
+                            key=f"{game}_{player}",
+                            help="Enter score (0 to 900, integers only)"
+                        )
                     else:
                         score = st.number_input(
                             f"{player}",
@@ -117,17 +127,19 @@ def show():
                             min_value=1,
                             max_value=20,
                             value=1,
+                            step=1,
                             key=f"{game}_{player}_guesses"
                         )
-                        raw_score = calculate_special_score(True, guesses, game)
+                        raw_score = calculate_special_score(True, int(guesses), game)
                     else:
                         distance = st.number_input(
                             "Distance (miles):",
-                            min_value=0.0,
-                            value=0.0,
+                            min_value=0,
+                            value=0,
+                            step=1,
                             key=f"{game}_{player}_distance"
                         )
-                        raw_score = calculate_special_score(False, distance, game)
+                        raw_score = calculate_special_score(False, int(distance), game)
                     
                     st.session_state.scores_data[game][player] = raw_score
                     st.caption(f"Calculated score: {raw_score:.2f}")
@@ -217,6 +229,8 @@ def display_results(results):
                             raw_display = f"{raw} 😬"
                         elif game == "Travle" and raw >= 3:
                             raw_display = f"{raw} 😬"
+                        elif game == "Geogrid" and raw >= 100:
+                            raw_display = f"{raw} 😬"
                         
                         row[f"{game} (Raw)"] = raw_display
                         row[f"{game} (Weighted)"] = f"{weighted:.3f}"
@@ -261,6 +275,9 @@ def display_results(results):
                     humor_msg = random.choice(BAD_SCORE_MESSAGES)
                     bad_scores_found.append(f"**{player}** in {game}: {humor_msg}")
                 elif game == "Travle" and raw >= 3:
+                    humor_msg = random.choice(BAD_SCORE_MESSAGES)
+                    bad_scores_found.append(f"**{player}** in {game}: {humor_msg}")
+                elif game == "Geogrid" and raw >= 100:
                     humor_msg = random.choice(BAD_SCORE_MESSAGES)
                     bad_scores_found.append(f"**{player}** in {game}: {humor_msg}")
     

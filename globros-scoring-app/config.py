@@ -5,12 +5,13 @@ PLAYERS = ["Anthony", "Cole", "Joseph", "Katherine"]
 
 # Games and their weights
 GAMES = {
-    "Worldle": {"weight": 1.2, "type": "standard"},
-    "Globle": {"weight": 0.8, "type": "standard"},
-    "Countryle": {"weight": 0.8, "type": "standard"},
-    "Travle": {"weight": 0.9, "type": "standard"},
-    "NoBordle": {"weight": 1.1, "type": "special"},
-    "ImpossiBordle": {"weight": 0.9, "type": "special"}
+    "Worldle": {"type": "standard", "weight": 1.2},
+    "Globle": {"type": "standard", "weight": 0.8},
+    "Countryle": {"type": "standard", "weight": 0.8},
+    "Travle": {"type": "standard", "weight": 0.9},
+    "Geogrid": {"type": "standard", "weight": 0.8},
+    "NoBordle": {"type": "special", "weight": 1.1},
+    "ImpossiBordle": {"type": "special", "weight": 0.9}
 }
 
 # Score ranges for validation

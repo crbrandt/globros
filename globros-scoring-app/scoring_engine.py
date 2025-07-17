@@ -27,6 +27,8 @@ def calculate_normalized_score(raw_scores, game):
     Calculate normalized unweighted scores using the formula:
     (Score - Median Score) / (Median Score^0.4)
     
+    For Geogrid, scores are divided by 100 before normalization.
+    
     Args:
         raw_scores (list): List of raw scores for all players (may contain None for non-participants)
         game (str): Game name
@@ -41,6 +43,10 @@ def calculate_normalized_score(raw_scores, game):
         # If no one participated, return all zeros
         return [0.0 if score is not None else None for score in raw_scores]
     
+    # Apply Geogrid normalization (divide by 100) before median calculation
+    if game == "Geogrid":
+        participating_scores = [score / 100.0 for score in participating_scores]
+    
     scores_array = np.array(participating_scores, dtype=float)
     median_score = np.median(scores_array)
     
@@ -50,13 +56,16 @@ def calculate_normalized_score(raw_scores, game):
             normalized_scores.append(None)  # Non-participant
         else:
             try:
+                # Apply Geogrid normalization to individual scores as well
+                actual_score = score / 100.0 if game == "Geogrid" else float(score)
+                
                 # Handle division by zero case when median is exactly 0
                 if median_score == 0:
                     # When median is 0, scores above 0 are positive, scores below 0 are negative
-                    normalized = float(score)  # Simple difference since median is 0
+                    normalized = actual_score  # Simple difference since median is 0
                 else:
                     # Use absolute value for the denominator to handle negative medians properly
-                    normalized = (float(score) - median_score) / (abs(median_score) ** 0.4)
+                    normalized = (actual_score - median_score) / (abs(median_score) ** 0.4)
                 normalized_scores.append(normalized)
             except (ValueError, TypeError):
                 normalized_scores.append(0.0)
@@ -209,5 +218,8 @@ def validate_score_input(game, score, correct=None):
     elif game == "Travle":
         if not isinstance(score, (int, float)) or score < -1 or score > 100:
             return False, f"{game} score must be between -1 and 100"
+    elif game == "Geogrid":
+        if not isinstance(score, int) or score < 0 or score > 900:
+            return False, f"{game} score must be an integer between 0 and 900"
     
     return True, ""
