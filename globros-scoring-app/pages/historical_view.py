@@ -20,7 +20,7 @@ def show():
         # winners_url = script_dir + "daily_winners.csv"
         
         # Navigate to the correct data directory
-        data_dir = "https://raw.githubusercontent.com/crbrandt/globros/refs/heads/main/globros-scoring-app/pages/"
+        data_dir = "https://raw.githubusercontent.com/crbrandt/globros/refs/heads/main/globros-scoring-app/data/"
         
         st.write("🔍 **Debug Info:**")
         # st.write(f"- Script directory: `{script_dir}`")
