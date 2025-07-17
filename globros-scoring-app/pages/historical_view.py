@@ -15,12 +15,12 @@ def show():
         import os
         
         # Get the directory of the current script
-        script_dir = "https://raw.githubusercontent.com/crbrandt/globros/main/globros-scoring-app/"
-        scores_url = script_dir + "scores_history.csv"
-        winners_url = script_dir + "daily_winners.csv"
+        # script_dir = "https://raw.githubusercontent.com/crbrandt/globros/main/globros-scoring-app/"
+        # scores_url = script_dir + "scores_history.csv"
+        # winners_url = script_dir + "daily_winners.csv"
         
         # Navigate to the correct data directory
-        data_dir = os.path.join(script_dir, 'data')
+        data_dir = "https://raw.githubusercontent.com/crbrandt/globros/refs/heads/main/globros-scoring-app/pages/"
         
         st.write("🔍 **Debug Info:**")
         st.write(f"- Script directory: `{script_dir}`")
