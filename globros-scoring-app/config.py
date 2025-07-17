@@ -81,8 +81,6 @@ BAD_SCORE_GIFS = [
     "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif", # Oh no
 ]
 
-# CSV file path
+# CSV file path and columns
 CSV_FILE_PATH = "data/scores_history.csv"
-
-# CSV columns
 CSV_COLUMNS = ["date", "game", "player", "raw_score", "normalized_unweighted_score", "normalized_weighted_score"]
