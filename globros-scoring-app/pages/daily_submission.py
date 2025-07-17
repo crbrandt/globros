@@ -229,7 +229,7 @@ def display_results(results):
                             raw_display = f"{raw} 😬"
                         elif game == "Travle" and raw >= 3:
                             raw_display = f"{raw} 😬"
-                        elif game == "Geogrid" and raw >= 100:
+                        elif game == "Geogrid" and raw >= 200:
                             raw_display = f"{raw} 😬"
                         
                         row[f"{game} (Raw)"] = raw_display
@@ -277,7 +277,7 @@ def display_results(results):
                 elif game == "Travle" and raw >= 3:
                     humor_msg = random.choice(BAD_SCORE_MESSAGES)
                     bad_scores_found.append(f"**{player}** in {game}: {humor_msg}")
-                elif game == "Geogrid" and raw >= 200:
+                elif game == "Geogrid" and raw >= 100:
                     humor_msg = random.choice(BAD_SCORE_MESSAGES)
                     bad_scores_found.append(f"**{player}** in {game}: {humor_msg}")
     
