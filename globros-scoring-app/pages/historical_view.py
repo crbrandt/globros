@@ -23,7 +23,7 @@ def show():
         data_dir = "https://raw.githubusercontent.com/crbrandt/globros/refs/heads/main/globros-scoring-app/pages/"
         
         st.write("🔍 **Debug Info:**")
-        st.write(f"- Script directory: `{script_dir}`")
+        # st.write(f"- Script directory: `{script_dir}`")
         st.write(f"- Data directory path: `{data_dir}`")
         st.write(f"- Data directory exists: `{os.path.exists(data_dir)}`")
         
