@@ -3,7 +3,8 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
-from data_manager import load_historical_data, get_daily_winners, get_player_statistics
+from data_manager import load_historical_data, get_player_statistics
+from daily_winners import load_daily_winners
 from config import PLAYERS, GAMES
 
 def show():
@@ -11,7 +12,7 @@ def show():
     
     # Load data
     df = load_historical_data()
-    winners_df = get_daily_winners()
+    winners_df = load_daily_winners()
     stats = get_player_statistics()
     
     if df.empty:
