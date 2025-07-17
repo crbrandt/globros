@@ -10,13 +10,18 @@ from config import PLAYERS, GAMES
 def show():
     st.title("📚 Historical Records")
     
-    # Load data
-    df = load_historical_data()
-    winners_df = load_daily_winners()
-    stats = get_player_statistics()
-    
-    if df.empty:
-        st.info("📝 No historical data available yet. Submit some daily scores to see statistics!")
+    try:
+        # Load data with error handling
+        df = load_historical_data()
+        winners_df = load_daily_winners()
+        stats = get_player_statistics()
+        
+        if df.empty:
+            st.info("📝 No historical data available yet. Submit some daily scores to see statistics!")
+            return
+    except Exception as e:
+        st.error(f"❌ Error loading historical data: {str(e)}")
+        st.info("Please check that data files exist and are accessible.")
         return
     
     # Summary statistics
