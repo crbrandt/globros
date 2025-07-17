@@ -10,6 +10,7 @@ WINNERS_COLUMNS = ["date", "winner", "total_score", "participants"]
 def ensure_winners_csv_exists():
     """
     Create the daily winners CSV file with headers if it doesn't exist.
+    Only creates empty file if no file exists at all.
     """
     if not os.path.exists(WINNERS_CSV_PATH):
         # Create directory if it doesn't exist
@@ -18,6 +19,9 @@ def ensure_winners_csv_exists():
         # Create empty DataFrame with proper columns
         df = pd.DataFrame(columns=WINNERS_COLUMNS)
         df.to_csv(WINNERS_CSV_PATH, index=False)
+        print(f"Created empty winners CSV file: {WINNERS_CSV_PATH}")
+    else:
+        print(f"Winners CSV file already exists: {WINNERS_CSV_PATH}")
 
 def save_daily_winner(date, results):
     """

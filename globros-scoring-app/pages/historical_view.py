@@ -11,10 +11,23 @@ def show():
     st.title("📚 Historical Records")
     
     try:
-        # Load data with error handling
+        # Load data with error handling and debugging
+        import os
+        st.write("🔍 **Debug Info:**")
+        st.write(f"- Current working directory: `{os.getcwd()}`")
+        st.write(f"- Data directory exists: `{os.path.exists('data')}`")
+        if os.path.exists('data'):
+            st.write(f"- Files in data directory: `{os.listdir('data')}`")
+        st.write(f"- scores_history.csv exists: `{os.path.exists('data/scores_history.csv')}`")
+        st.write(f"- daily_winners.csv exists: `{os.path.exists('data/daily_winners.csv')}`")
+        
         df = load_historical_data()
         winners_df = load_daily_winners()
         stats = get_player_statistics()
+        
+        st.write(f"- Historical data rows loaded: `{len(df)}`")
+        st.write(f"- Winners data rows loaded: `{len(winners_df)}`")
+        st.write("---")
         
         if df.empty:
             st.info("📝 No historical data available yet. Submit some daily scores to see statistics!")
@@ -22,6 +35,8 @@ def show():
     except Exception as e:
         st.error(f"❌ Error loading historical data: {str(e)}")
         st.info("Please check that data files exist and are accessible.")
+        import traceback
+        st.code(traceback.format_exc())
         return
     
     # Summary statistics

@@ -6,6 +6,7 @@ from config import CSV_FILE_PATH, CSV_COLUMNS, PLAYERS, GAMES
 def ensure_csv_exists():
     """
     Create the CSV file with headers if it doesn't exist.
+    Only creates empty file if no file exists at all.
     """
     if not os.path.exists(CSV_FILE_PATH):
         # Create directory if it doesn't exist
@@ -14,6 +15,9 @@ def ensure_csv_exists():
         # Create empty DataFrame with proper columns
         df = pd.DataFrame(columns=CSV_COLUMNS)
         df.to_csv(CSV_FILE_PATH, index=False)
+        print(f"Created empty CSV file: {CSV_FILE_PATH}")
+    else:
+        print(f"CSV file already exists: {CSV_FILE_PATH}")
 
 def save_daily_results(date, results):
     """
