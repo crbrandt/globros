@@ -13,19 +13,27 @@ def show():
     try:
         # Load data with error handling and debugging
         import os
-        st.write("🔍 **Debug Info:**")
-        st.write(f"- Current working directory: `{os.getcwd()}`")
-        st.write(f"- Data directory exists: `{os.path.exists('data')}`")
-        if os.path.exists('data'):
-            st.write(f"- Files in data directory: `{os.listdir('data')}`")
-        st.write(f"- scores_history.csv exists: `{os.path.exists('data/scores_history.csv')}`")
-        st.write(f"- daily_winners.csv exists: `{os.path.exists('data/daily_winners.csv')}`")
         
-        # Check file sizes
-        if os.path.exists('data/scores_history.csv'):
-            st.write(f"- scores_history.csv size: `{os.path.getsize('data/scores_history.csv')} bytes`")
-        if os.path.exists('data/daily_winners.csv'):
-            st.write(f"- daily_winners.csv size: `{os.path.getsize('data/daily_winners.csv')} bytes`")
+        # Get the directory of the current script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Navigate to the correct data directory
+        data_dir = os.path.join(script_dir, 'data')
+        
+        st.write("🔍 **Debug Info:**")
+        st.write(f"- Script directory: `{script_dir}`")
+        st.write(f"- Data directory path: `{data_dir}`")
+        st.write(f"- Data directory exists: `{os.path.exists(data_dir)}`")
+        
+        if os.path.exists(data_dir):
+            st.write(f"- Files in data directory: `{os.listdir(data_dir)}`")
+        
+        # Use the correct paths for your CSV files
+        scores_path = os.path.join(data_dir, 'scores_history.csv')
+        winners_path = os.path.join(data_dir, 'daily_winners.csv')
+        
+        st.write(f"- scores_history.csv exists: `{os.path.exists(scores_path)}`")
+        st.write(f"- daily_winners.csv exists: `{os.path.exists(winners_path)}`")
         
         # Try to read raw file contents
         try:
