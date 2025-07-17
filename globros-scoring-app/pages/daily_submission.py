@@ -5,6 +5,7 @@ import random
 from config import GAMES, PLAYERS, CELEBRATION_MESSAGES, CELEBRATION_GIFS, BAD_SCORE_MESSAGES, BAD_SCORE_GIFS
 from scoring_engine import calculate_daily_results, calculate_special_score, format_results_for_display
 from data_manager import save_daily_results, check_date_exists
+from daily_winners import save_daily_winner
 
 def show():
     st.title("📅 Daily Score Submission")
@@ -275,9 +276,10 @@ def display_results(results):
     with col2:
         if st.button("💾 Submit to Official Records", type="primary", use_container_width=True):
             with st.spinner("Saving results..."):
-                success = save_daily_results(st.session_state.current_date, st.session_state.current_results)
+                success1 = save_daily_results(st.session_state.current_date, st.session_state.current_results)
+                success2 = save_daily_winner(st.session_state.current_date, st.session_state.current_results)
             
-            if success:
+            if success1 and success2:
                 st.success("✅ Results saved to official records!")
                 st.balloons()
                 
