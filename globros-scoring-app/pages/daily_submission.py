@@ -294,6 +294,7 @@ def display_results(results):
     with col2:
         if st.button("💾 Submit to Official Records", type="primary", use_container_width=True):
             # Check if we have the required data
+            st.print("beep boop!")
             if 'current_results' not in st.session_state or 'current_date' not in st.session_state:
                 st.error("❌ No results to save. Please calculate results first.")
                 return
