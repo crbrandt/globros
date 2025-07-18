@@ -8,11 +8,11 @@ import io
 REPO_NAME = "crbrandt/globros"
 SCORES_FILE_PATH = "globros-scoring-app/data/scores_history.csv"
 WINNERS_FILE_PATH = "globros-scoring-app/data/daily_winners.csv"
-GITHUB_TOKEN = "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"  # Replace with your actual token
+# GITHUB_TOKEN = "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"  # Replace with your actual token
 
 def get_github_token():
     """Get GitHub token - hardcoded for simplicity."""
-    return GITHUB_TOKEN
+    return Github(st.secrets["GITHUB_TOKEN"])
 
 def update_github_csv(file_path, new_data, commit_message):
     """
