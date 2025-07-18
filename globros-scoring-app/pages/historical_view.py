@@ -7,71 +7,99 @@ from data_manager import load_historical_data, get_player_statistics
 from daily_winners import load_daily_winners
 from config import PLAYERS, GAMES
 
+def calculate_stats_from_dataframes(df_scores, df_winners):
+    """
+    Calculate comprehensive player statistics from GitHub dataframes.
+    
+    Args:
+        df_scores (pd.DataFrame): Historical scores data
+        df_winners (pd.DataFrame): Daily winners data
+    
+    Returns:
+        dict: Dictionary with various statistics
+    """
+    try:
+        if df_scores.empty:
+            return {}
+        
+        stats = {
+            "total_games_played": len(df_scores["date"].unique()),
+            "win_counts": df_winners["winner"].value_counts().to_dict() if not df_winners.empty else {},
+            "average_scores_by_game": {},
+            "player_performance_trends": {},
+            "game_difficulty_analysis": {}
+        }
+        
+        # Average scores by game and player
+        for game in GAMES.keys():
+            game_data = df_scores[df_scores["game"] == game]
+            if not game_data.empty:
+                # Filter out empty/null raw scores
+                game_data_clean = game_data[game_data["raw_score"].notna() & (game_data["raw_score"] != "")]
+                if not game_data_clean.empty:
+                    # Convert to numeric if needed
+                    game_data_clean["raw_score"] = pd.to_numeric(game_data_clean["raw_score"], errors='coerce')
+                    avg_scores = game_data_clean.groupby("player")["raw_score"].mean().to_dict()
+                    stats["average_scores_by_game"][game] = avg_scores
+        
+        # Player performance trends (total weighted scores over time)
+        daily_totals = df_scores.groupby(["date", "player"])["normalized_weighted_score"].sum().reset_index()
+        for player in PLAYERS:
+            player_data = daily_totals[daily_totals["player"] == player].sort_values("date")
+            stats["player_performance_trends"][player] = {
+                "dates": player_data["date"].tolist(),
+                "scores": player_data["normalized_weighted_score"].tolist()
+            }
+        
+        # Game difficulty analysis (average raw scores)
+        for game in GAMES.keys():
+            game_data = df_scores[df_scores["game"] == game]
+            if not game_data.empty:
+                # Filter out empty/null raw scores and convert to numeric
+                game_data_clean = game_data[game_data["raw_score"].notna() & (game_data["raw_score"] != "")]
+                if not game_data_clean.empty:
+                    game_data_clean["raw_score"] = pd.to_numeric(game_data_clean["raw_score"], errors='coerce')
+                    game_data_clean = game_data_clean[game_data_clean["raw_score"].notna()]
+                    
+                    if not game_data_clean.empty:
+                        stats["game_difficulty_analysis"][game] = {
+                            "average_score": game_data_clean["raw_score"].mean(),
+                            "median_score": game_data_clean["raw_score"].median(),
+                            "std_dev": game_data_clean["raw_score"].std()
+                        }
+        
+        return stats
+    
+    except Exception as e:
+        st.error(f"Error calculating statistics: {e}")
+        return {}
+
 def show():
     st.title("📚 Historical Records")
     
     try:
-        # Load data with error handling and debugging
-        import os
-        
-        # Get the directory of the current script
-        # script_dir = "https://raw.githubusercontent.com/crbrandt/globros/main/globros-scoring-app/"
-        # scores_url = script_dir + "scores_history.csv"
-        # winners_url = script_dir + "daily_winners.csv"
-        
-        # Navigate to the correct data directory
+        # Load data directly from GitHub
         data_dir = "https://raw.githubusercontent.com/crbrandt/globros/refs/heads/main/globros-scoring-app/data/"
         scores_url = data_dir + "scores_history.csv"
-        winners_url = data_dir + "scores_history.csv"
-        df_data =  pd.read_csv(scores_url, index_col=0)
-        df_data
+        winners_url = data_dir + "daily_winners.csv"
         
-        st.write("🔍 **Debug Info:**")
-        # st.write(f"- Script directory: `{script_dir}`")
-        st.write(f"- Data directory path: `{data_dir}`")
-        st.write(f"- Data directory exists: `{os.path.exists(data_dir)}`")
+        df_scores_data = pd.read_csv(scores_url)
+        df_winners_data = pd.read_csv(winners_url)
         
-        if os.path.exists(data_dir):
-            st.write(f"- Files in data directory: `{os.listdir(data_dir)}`")
-        
-        # Use the correct paths for your CSV files
-        scores_path = os.path.join(data_dir, 'scores_history.csv')
-        winners_path = os.path.join(data_dir, 'daily_winners.csv')
-        
-        st.write(f"- scores_history.csv exists: `{os.path.exists(scores_path)}`")
-        st.write(f"- daily_winners.csv exists: `{os.path.exists(winners_path)}`")
-        
-        # Try to read raw file contents
-        try:
-            with open('data/scores_history.csv', 'r') as f:
-                content = f.read()
-                st.write(f"- scores_history.csv raw content (first 200 chars): `{content[:200]}`")
-        except Exception as e:
-            st.write(f"- Error reading scores_history.csv: `{e}`")
-            
-        try:
-            with open('data/daily_winners.csv', 'r') as f:
-                content = f.read()
-                st.write(f"- daily_winners.csv raw content: `{content}`")
-        except Exception as e:
-            st.write(f"- Error reading daily_winners.csv: `{e}`")
-        
-        df = load_historical_data()
-        winners_df = load_daily_winners()
-        stats = get_player_statistics()
-        
-        st.write(f"- Historical data rows loaded: `{len(df)}`")
-        st.write(f"- Winners data rows loaded: `{len(winners_df)}`")
-        st.write("---")
+        # Use the GitHub dataframes
+        df = df_scores_data
+        winners_df = df_winners_data
         
         if df.empty:
             st.info("📝 No historical data available yet. Submit some daily scores to see statistics!")
             return
+        
+        # Calculate stats from the GitHub data
+        stats = calculate_stats_from_dataframes(df, winners_df)
+        
     except Exception as e:
         st.error(f"❌ Error loading historical data: {str(e)}")
-        st.info("Please check that data files exist and are accessible.")
-        import traceback
-        st.code(traceback.format_exc())
+        st.info("Please check that GitHub data files are accessible.")
         return
     
     # Summary statistics

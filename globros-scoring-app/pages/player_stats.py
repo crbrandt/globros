@@ -12,17 +12,29 @@ def show():
     st.title("👥 Player Statistics")
     
     try:
-        # Load data with error handling
-        df = load_historical_data()
-        winners_df = load_daily_winners()
-        stats = get_player_statistics()
+        # Load data directly from GitHub
+        data_dir = "https://raw.githubusercontent.com/crbrandt/globros/refs/heads/main/globros-scoring-app/data/"
+        scores_url = data_dir + "scores_history.csv"
+        winners_url = data_dir + "daily_winners.csv"
+        
+        df_scores_data = pd.read_csv(scores_url)
+        df_winners_data = pd.read_csv(winners_url)
+        
+        # Use the GitHub dataframes
+        df = df_scores_data
+        winners_df = df_winners_data
         
         if df.empty:
             st.info("📝 No player data available yet. Submit some daily scores to see player statistics!")
             return
+        
+        # Calculate stats from the GitHub data
+        from pages.historical_view import calculate_stats_from_dataframes
+        stats = calculate_stats_from_dataframes(df, winners_df)
+        
     except Exception as e:
         st.error(f"❌ Error loading player data: {str(e)}")
-        st.info("Please check that data files exist and are accessible.")
+        st.info("Please check that GitHub data files are accessible.")
         return
     
     # Player selector
