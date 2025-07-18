@@ -6,6 +6,7 @@ from config import GAMES, PLAYERS, CELEBRATION_MESSAGES, CELEBRATION_GIFS, BAD_S
 from scoring_engine import calculate_daily_results, calculate_special_score, format_results_for_display
 from data_manager import save_daily_results, check_date_exists
 from daily_winners import save_daily_winner
+from github_integration import save_results_to_github
 
 def show():
     st.title("📅 Daily Score Submission")
@@ -292,19 +293,23 @@ def display_results(results):
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("💾 Submit to Official Records", type="primary", use_container_width=True):
-            with st.spinner("Saving results..."):
-                success1 = save_daily_results(st.session_state.current_date, st.session_state.current_results)
-                success2 = save_daily_winner(st.session_state.current_date, st.session_state.current_results)
+            with st.spinner("Saving results to GitHub repository..."):
+                # Save to GitHub repository
+                github_success = save_results_to_github(st.session_state.current_date, st.session_state.current_results)
+                
+                # Also save locally as backup
+                local_success1 = save_daily_results(st.session_state.current_date, st.session_state.current_results)
+                local_success2 = save_daily_winner(st.session_state.current_date, st.session_state.current_results)
             
-            if success1 and success2:
-                st.success("✅ Results saved to official records!")
+            if github_success:
+                st.success("✅ Results saved to GitHub repository!")
                 st.balloons()
                 
                 # Mark as saved in session state instead of clearing immediately
                 st.session_state.results_saved = True
                 
                 # Show option to start new calculation
-                st.info("🎉 Data successfully saved! You can now calculate results for another date or refresh the page to start over.")
+                st.info("🎉 Data successfully saved to your GitHub repository! The Historical Records and Player Stats pages will now show the updated data.")
                 
                 if st.button("🔄 Start New Calculation", key="new_calc"):
                     # Clear the form and results
@@ -322,7 +327,9 @@ def display_results(results):
                     
                     st.rerun()
             else:
-                st.error("❌ Error saving results. Please check the terminal for error details and try again.")
+                st.error("❌ Error saving results to GitHub. Please check your GitHub token and try again.")
+                if local_success1 and local_success2:
+                    st.info("📝 Results were saved locally as backup.")
 
 # Initialize the page
 if __name__ == "__main__":
