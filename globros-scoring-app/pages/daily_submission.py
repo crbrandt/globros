@@ -161,13 +161,69 @@ def show():
                 st.session_state.scores_data[game][player] for player in PLAYERS
             ]
         
-        # Calculate results
+        # Calculate results and store globally
         results = calculate_daily_results(scores_for_calculation)
         st.session_state.current_results = results
         st.session_state.current_date = selected_date.strftime("%Y-%m-%d")
+        st.session_state.results_calculated = True
+    
+    # Display results if they exist in session state
+    if st.session_state.get('results_calculated', False) and 'current_results' in st.session_state:
+        display_results(st.session_state.current_results)
+    
+    # Submit button - always show if results exist
+    if st.session_state.get('results_calculated', False):
+        st.markdown("---")
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("💾 Submit to Official Records", type="primary", use_container_width=True):
+                st.write("Button clicked!")  # Debug message
+                
+                # Check if we have the required data
+                if 'current_results' not in st.session_state or 'current_date' not in st.session_state:
+                    st.error("❌ No results to save. Please calculate results first.")
+                else:
+                    with st.spinner("Saving results to GitHub repository..."):
+                        try:
+                            # Save to GitHub repository
+                            github_success = save_results_to_github(st.session_state.current_date, st.session_state.current_results)
+                            
+                            # Also save locally as backup
+                            local_success1 = save_daily_results(st.session_state.current_date, st.session_state.current_results)
+                            local_success2 = save_daily_winner(st.session_state.current_date, st.session_state.current_results)
+                            
+                        except Exception as e:
+                            st.error(f"❌ Error during save process: {str(e)}")
+                            github_success = False
+                            local_success1 = False
+                            local_success2 = False
+                    
+                    if github_success:
+                        st.success("✅ Results saved to GitHub repository!")
+                        st.balloons()
+                        st.session_state.results_saved = True
+                        st.info("🎉 Data successfully saved to your GitHub repository!")
+                    else:
+                        st.error("❌ Error saving results to GitHub. Please check your GitHub token and try again.")
+                        if local_success1 and local_success2:
+                            st.info("📝 Results were saved locally as backup.")
         
-        # Display results
-        display_results(results)
+        # Show "Start New Calculation" button if results were saved
+        if st.session_state.get('results_saved', False):
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                if st.button("🔄 Start New Calculation", key="new_calc", use_container_width=True):
+                    # Clear all session state
+                    for key in ['current_results', 'current_date', 'results_calculated', 'results_saved']:
+                        if key in st.session_state:
+                            del st.session_state[key]
+                    
+                    # Clear scores data
+                    for game in GAMES.keys():
+                        for player in PLAYERS:
+                            st.session_state.scores_data[game][player] = None
+                    
+                    st.rerun()
 
 def display_results(results):
     """Display calculated results with celebration."""
@@ -287,65 +343,6 @@ def display_results(results):
         for comment in bad_scores_found:
             st.markdown(f"• {comment}")
     
-    st.markdown("---")
-    
-    # Save to records button
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("💾 Submit to Official Records", type="primary", use_container_width=True):
-            # Check if we have the required data
-            st.print("beep boop!")
-            if 'current_results' not in st.session_state or 'current_date' not in st.session_state:
-                st.error("❌ No results to save. Please calculate results first.")
-                return
-            
-            with st.spinner("Saving results to GitHub repository..."):
-                try:
-                    # Save to GitHub repository
-                    github_success = save_results_to_github(st.session_state.current_date, st.session_state.current_results)
-                    
-                    # Also save locally as backup
-                    local_success1 = save_daily_results(st.session_state.current_date, st.session_state.current_results)
-                    local_success2 = save_daily_winner(st.session_state.current_date, st.session_state.current_results)
-                    
-                except Exception as e:
-                    st.error(f"❌ Error during save process: {str(e)}")
-                    github_success = False
-                    local_success1 = False
-                    local_success2 = False
-            
-            if github_success:
-                st.success("✅ Results saved to GitHub repository!")
-                st.balloons()
-                
-                # Mark as saved in session state instead of clearing immediately
-                st.session_state.results_saved = True
-                
-                # Show option to start new calculation
-                st.info("🎉 Data successfully saved to your GitHub repository! The Historical Records and Player Stats pages will now show the updated data.")
-                
-            else:
-                st.error("❌ Error saving results to GitHub. Please check your GitHub token and try again.")
-                if local_success1 and local_success2:
-                    st.info("📝 Results were saved locally as backup.")
-        
-        # Show "Start New Calculation" button if results were saved
-        if st.session_state.get('results_saved', False):
-            if st.button("🔄 Start New Calculation", key="new_calc"):
-                # Clear the form and results
-                for game in GAMES.keys():
-                    for player in PLAYERS:
-                        st.session_state.scores_data[game][player] = None
-                
-                # Clear results from session state
-                if 'current_results' in st.session_state:
-                    del st.session_state.current_results
-                if 'current_date' in st.session_state:
-                    del st.session_state.current_date
-                if 'results_saved' in st.session_state:
-                    del st.session_state.results_saved
-                
-                st.rerun()
 
 # Initialize the page
 if __name__ == "__main__":
