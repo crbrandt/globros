@@ -21,6 +21,8 @@ def show():
         
         # Navigate to the correct data directory
         data_dir = "https://raw.githubusercontent.com/crbrandt/globros/refs/heads/main/globros-scoring-app/data/"
+        df_data =  pd.read_csv(data_dir, index_col=0)
+        df_data
         
         st.write("🔍 **Debug Info:**")
         # st.write(f"- Script directory: `{script_dir}`")
